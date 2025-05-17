@@ -44,8 +44,9 @@ def save_comments(data):
 @app.route("/")
 def index():
     playlist = fetch_playlist()
-    if not playlist:
-        return "Failed to load playlist."
+    if not playlist or "tracks" not in playlist:
+        return f"Failed to load playlist. Response: {json.dumps(playlist, indent=2)}"
+
     tracks = playlist["tracks"]["items"]
     comments = load_comments()
 
@@ -176,4 +177,5 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
