@@ -8,28 +8,17 @@ load_dotenv()
 
 app = Flask(__name__)
 COMMENTS_FILE = 'comments.json'
-
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-PLAYLIST_ID = "5hdA5T6opqq1X8d9uXwf7I"
-
-def get_spotify_token():
-    auth_response = requests.post(
-        'https://accounts.spotify.com/api/token',
-        data={'grant_type': 'client_credentials'},
-        auth=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
-    )
-    return auth_response.json().get('access_token')
+GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")  # published CSV URL from your public sheet
 
 def fetch_playlist():
-    token = get_spotify_token()
-    if not token:
-        return None
-    response = requests.get(
-        f"https://api.spotify.com/v1/playlists/{PLAYLIST_ID}/tracks",
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    return response.json()
+    try:
+        response = requests.get(GOOGLE_SHEET_URL)
+        lines = response.text.strip().split('\n')
+        headers = lines[0].split(',')
+        track_data = [dict(zip(headers, line.split(','))) for line in lines[1:]]
+        return {"tracks": track_data}
+    except Exception as e:
+        return {"error": str(e)}
 
 def load_comments():
     if os.path.exists(COMMENTS_FILE):
@@ -44,10 +33,10 @@ def save_comments(data):
 @app.route("/")
 def index():
     playlist = fetch_playlist()
-    if not playlist or "items" not in playlist:
+    if not playlist or "tracks" not in playlist:
         return f"Failed to load playlist. Response: {json.dumps(playlist, indent=2)}"
 
-    tracks = playlist["items"]
+    tracks = playlist["tracks"]
     comments = load_comments()
 
     output = """
@@ -105,14 +94,11 @@ def index():
                 <h1 class='mb-5 text-center'>🌌 Our Collective Consciousness</h1>
     """
 
-    for item in tracks:
-        track = item['track']
-        if not track:
-            continue
-        track_id = track['id']
-        name = track['name']
-        artist = track['artists'][0]['name']
-        added = item.get('added_at', '')[:10]
+    for track in tracks:
+        track_id = track.get('id', track.get('name').replace(' ', '_'))
+        name = track.get('name', 'Unknown')
+        artist = track.get('artist', 'Unknown')
+        added = track.get('added', '')
 
         kai_comment = comments.get(track_id, {}).get("kai", "")
         vic_comment = comments.get(track_id, {}).get("victoria", "")
@@ -177,6 +163,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
