@@ -18,7 +18,11 @@ def fetch_playlist():
         response.raise_for_status()
         lines = response.text.strip().split('\n')
         headers = lines[0].split(',')
-        track_data = [dict(zip(headers, line.split(','))) for line in lines[1:]]
+        track_data = []
+        for line in lines[1:]:
+            values = line.split(',')
+            row = dict(zip(headers, values))
+            track_data.append(row)
         return {"tracks": track_data}
     except Exception as e:
         return {"error": str(e)}
@@ -98,8 +102,8 @@ def index():
     """
 
     for track in tracks:
-        track_id = track.get('id', track.get('name').replace(' ', '_'))
         name = track.get('name', 'Unknown')
+        track_id = track.get('id') or name.replace(' ', '_')
         artist = track.get('artist', 'Unknown')
         added = track.get('added', '')
 
@@ -166,6 +170,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
