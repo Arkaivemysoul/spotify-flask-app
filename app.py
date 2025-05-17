@@ -96,13 +96,15 @@ def index():
             }
         @media only screen and (max-width: 768px) {
             body {
-                background: url('https://i.imgur.com/E4kkNq6.jpeg') no-repeat center center scroll;
+                background: url('https://i.imgur.com/E4kkNq6.jpeg') no-repeat center center;
                 background-size: cover;
-                background-color: #000;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: scroll;
+                background-color: #000000;
                 min-height: 100vh;
-                opacity: 1;
-                    background-size: cover;
-                }
+            }
+        }
             }
         </style>
     </head>
@@ -181,13 +183,6 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
-
-
-
-
-
-
-
 
 
 
