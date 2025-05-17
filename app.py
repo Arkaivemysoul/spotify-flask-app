@@ -26,7 +26,7 @@ def fetch_playlist():
     if not token:
         return None
     response = requests.get(
-        f"https://api.spotify.com/v1/playlists/{PLAYLIST_ID}",
+        f"https://api.spotify.com/v1/playlists/{PLAYLIST_ID}/tracks",
         headers={"Authorization": f"Bearer {token}"}
     )
     return response.json()
@@ -44,10 +44,10 @@ def save_comments(data):
 @app.route("/")
 def index():
     playlist = fetch_playlist()
-    if not playlist or "tracks" not in playlist:
+    if not playlist or "items" not in playlist:
         return f"Failed to load playlist. Response: {json.dumps(playlist, indent=2)}"
 
-    tracks = playlist["tracks"]["items"]
+    tracks = playlist["items"]
     comments = load_comments()
 
     output = """
@@ -112,7 +112,7 @@ def index():
         track_id = track['id']
         name = track['name']
         artist = track['artists'][0]['name']
-        added = item['added_at'][:10]
+        added = item.get('added_at', '')[:10]
 
         kai_comment = comments.get(track_id, {}).get("kai", "")
         vic_comment = comments.get(track_id, {}).get("victoria", "")
@@ -177,5 +177,6 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
