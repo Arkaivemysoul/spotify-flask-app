@@ -57,10 +57,12 @@ def index():
                 font-family: 'Quicksand', sans-serif;
                 background: url('https://images2.alphacoders.com/138/1386740.png') no-repeat center center fixed;
                 background-size: cover;
+                    background-color: #000000;
+                    min-height: 100vh;
                 color: #ffffff;
             }
             .overlay {
-                background-color: rgba(0, 0, 0, 0.2);
+                background-color: rgba(0, 0, 0, 0.5);
                 min-height: 100vh;
                 padding: 2rem;
             }
@@ -93,8 +95,8 @@ def index():
                 min-height: 100px;
             }
         @media only screen and (max-width: 768px) {
-                body {
-                    background: url('https://i.imgur.com/0gQoWFR.jpeg') no-repeat center center scroll;
+            body {
+                    background: url('https://i.imgur.com/E4kkNq6.jpeg') no-repeat center center scroll;
                     background-size: cover;
                 }
             }
@@ -175,6 +177,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
