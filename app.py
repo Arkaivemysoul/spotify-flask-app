@@ -51,7 +51,7 @@ def index():
     <head>
         <title>Our Collective Consciousness</title>
         <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
-        <link href='https://fonts.googleapis.com/css2?family=Quicksand&family=Playfair+Display:wght@700&family=UnifrakturCook:700&display=swap' rel='stylesheet'>
+        <link href='https://fonts.googleapis.com/css2?family=Quicksand&family=Playfair+Display:wght@700&family=Cinzel:wght@700&display=swap' rel='stylesheet'>
         <style>
             body {
                 font-family: 'Quicksand', sans-serif;
@@ -71,7 +71,7 @@ def index():
                 backdrop-filter: blur(4px);
             }
             .card-title {
-                font-family: 'UnifrakturCook', cursive;
+                font-family: 'Cinzel', serif;
                 font-size: 1.6rem;
                 font-weight: 700;
                 text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
@@ -91,6 +91,12 @@ def index():
                 font-size: 1rem;
                 resize: vertical;
                 min-height: 100px;
+            }
+        @media only screen and (max-width: 768px) {
+                body {
+                    background: url('https://preview.redd.it/no-spoilers-jinx-mobile-wallpaper-oled-friendly-v0-1y2gk4mwz43e1.png?width=1080&crop=smart&auto=webp&s=74e2ea53692643ad3356a44e5478509b609559d8') no-repeat center center fixed;
+                    background-size: cover;
+                }
             }
         </style>
     </head>
@@ -169,6 +175,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
