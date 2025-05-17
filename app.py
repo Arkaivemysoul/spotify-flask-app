@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import requests
+import csv
 import json
 import os
 from dotenv import load_dotenv
@@ -14,16 +15,14 @@ def fetch_playlist():
     try:
         if not GOOGLE_SHEET_URL:
             return {"error": "GOOGLE_SHEET_URL not set in environment"}
+
         response = requests.get(GOOGLE_SHEET_URL, timeout=10)
         response.raise_for_status()
-        lines = response.text.strip().split('\n')
-        headers = lines[0].split(',')
-        track_data = []
-        for line in lines[1:]:
-            values = line.split(',')
-            row = dict(zip(headers, values))
-            track_data.append(row)
-        return {"tracks": track_data}
+
+        decoded_content = response.content.decode('utf-8')
+        reader = csv.DictReader(decoded_content.splitlines())
+        return {"tracks": list(reader)}
+
     except Exception as e:
         return {"error": str(e)}
 
@@ -103,9 +102,8 @@ def index():
 
     for track in tracks:
         name = track.get('name', 'Unknown')
-        track_id = track.get('id') or name.replace(' ', '_')
+        track_id = name.lower().strip().replace(' ', '_')
         artist = track.get('artist', 'Unknown')
-        added = track.get('added', '')
 
         kai_comment = comments.get(track_id, {}).get("kai", "")
         vic_comment = comments.get(track_id, {}).get("victoria", "")
@@ -115,7 +113,7 @@ def index():
             <div class='row g-3'>
                 <div class='col-md-5'>
                     <h5 class='card-title'>{name}</h5>
-                    <p class='card-text'><em>{artist}</em><br><small>Added on {added}</small></p>
+                    <p class='card-text'><em>{artist}</em></p>
                 </div>
                 <div class='col-md-7'>
                     <div class='mb-3'>
