@@ -1,48 +1,52 @@
-from flask import Flask, redirect, request, jsonify
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-import os
+from flask import Flask, jsonify, request
+import requests
 import json
+import os
 from dotenv import load_dotenv
 
-# Load your credentials from .env file
 load_dotenv()
 
 app = Flask(__name__)
 COMMENTS_FILE = 'comments.json'
 
-# Spotify login setup
-sp_oauth = SpotifyOAuth(
-    client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-    client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-    redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
-    scope="playlist-read-private"
-)
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+PLAYLIST_ID = "5hdA5T6opqq1X8d9uXwf7I"
+
+def get_spotify_token():
+    auth_response = requests.post(
+        'https://accounts.spotify.com/api/token',
+        data={'grant_type': 'client_credentials'},
+        auth=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
+    )
+    return auth_response.json().get('access_token')
+
+def fetch_playlist():
+    token = get_spotify_token()
+    if not token:
+        return None
+    response = requests.get(
+        f"https://api.spotify.com/v1/playlists/{PLAYLIST_ID}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    return response.json()
 
 def load_comments():
     if os.path.exists(COMMENTS_FILE):
-        with open(COMMENTS_FILE, 'r') as f:
+        with open(COMMENTS_FILE, "r") as f:
             return json.load(f)
     return {}
 
 def save_comments(data):
-    with open(COMMENTS_FILE, 'w') as f:
+    with open(COMMENTS_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
 @app.route("/")
 def index():
-    auth_url = sp_oauth.get_authorize_url()
-    return f'<a href="{auth_url}">Login to Spotify</a>'
-
-@app.route("/callback")
-def callback():
-    code = request.args.get("code")
-    token_info = sp_oauth.get_access_token(code)
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-
-    playlist_id = "5hdA5T6opqq1X8d9uXwf7I"
-    results = sp.playlist_items(playlist_id)
-    tracks = results['items']
+    playlist = fetch_playlist()
+    if not playlist:
+        return "Failed to load playlist."
+    tracks = playlist["tracks"]["items"]
     comments = load_comments()
 
     output = """
@@ -50,8 +54,8 @@ def callback():
     <html>
     <head>
         <title>Our Collective Consciousness</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Quicksand&family=Playfair+Display:wght@700&family=UnifrakturCook:700&display=swap" rel="stylesheet">
+        <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+        <link href='https://fonts.googleapis.com/css2?family=Quicksand&family=Playfair+Display:wght@700&family=UnifrakturCook:700&display=swap' rel='stylesheet'>
         <style>
             body {
                 font-family: 'Quicksand', sans-serif;
@@ -95,13 +99,15 @@ def callback():
         </style>
     </head>
     <body>
-        <div class="overlay">
-            <div class="container">
-                <h1 class="mb-5 text-center">🌌 Our Collective Consciousness</h1>
+        <div class='overlay'>
+            <div class='container'>
+                <h1 class='mb-5 text-center'>🌌 Our Collective Consciousness</h1>
     """
 
     for item in tracks:
         track = item['track']
+        if not track:
+            continue
         track_id = track['id']
         name = track['name']
         artist = track['artists'][0]['name']
@@ -111,20 +117,20 @@ def callback():
         vic_comment = comments.get(track_id, {}).get("victoria", "")
 
         output += f"""
-        <div class="card mb-4 p-3 shadow-lg">
-            <div class="row g-3">
-                <div class="col-md-5">
-                    <h5 class="card-title">{name}</h5>
-                    <p class="card-text"><em>{artist}</em><br><small>Added on {added}</small></p>
+        <div class='card mb-4 p-3 shadow-lg'>
+            <div class='row g-3'>
+                <div class='col-md-5'>
+                    <h5 class='card-title'>{name}</h5>
+                    <p class='card-text'><em>{artist}</em><br><small>Added on {added}</small></p>
                 </div>
-                <div class="col-md-7">
-                    <div class="mb-3">
-                        <label for="kai_{track_id}">Comment (Kai):</label>
-                        <textarea id="kai_{track_id}" onblur="saveComment('{track_id}', 'kai')" placeholder="yap yap yap">{kai_comment}</textarea>
+                <div class='col-md-7'>
+                    <div class='mb-3'>
+                        <label for='kai_{track_id}'>Comment (Kai):</label>
+                        <textarea id='kai_{track_id}' onblur="saveComment('{track_id}', 'kai')" placeholder='yap yap yap'>{kai_comment}</textarea>
                     </div>
                     <div>
-                        <label for="vic_{track_id}">Comment (Victoria):</label>
-                        <textarea id="vic_{track_id}" onblur="saveComment('{track_id}', 'victoria')" placeholder="yap yap yap">{vic_comment}</textarea>
+                        <label for='vic_{track_id}'>Comment (Victoria):</label>
+                        <textarea id='vic_{track_id}' onblur="saveComment('{track_id}', 'victoria')" placeholder='yap yap yap'>{vic_comment}</textarea>
                     </div>
                 </div>
             </div>
@@ -132,32 +138,42 @@ def callback():
         """
 
     output += """
-    <script src='/static/script.js'></script>
+    <script>
+    async function saveComment(trackId, author) {
+        const text = document.getElementById(`${author}_${trackId}`).value;
+        const res = await fetch('/save_comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ track_id: trackId, author, text })
+        });
+        const result = await res.json();
+        if (result.status !== 'success') alert('Failed to save comment');
+    }
+    </script>
     </body>
     </html>
     """
 
     return output
 
-@app.route("/load_comments")
-def get_comments():
-    return jsonify(load_comments())
-
 @app.route("/save_comment", methods=["POST"])
 def save_comment():
-    data = request.json
-    track_id = data["track_id"]
-    author = data["author"]
-    text = data["text"]
+    data = request.get_json()
+    track_id = data.get("track_id")
+    author = data.get("author")
+    text = data.get("text")
 
     comments = load_comments()
     if track_id not in comments:
         comments[track_id] = {}
     comments[track_id][author] = text
-
     save_comments(comments)
     return jsonify({"status": "success"})
 
+@app.route("/load_comments")
+def get_comments():
+    return jsonify(load_comments())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
