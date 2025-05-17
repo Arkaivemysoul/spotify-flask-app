@@ -94,7 +94,7 @@ def index():
             }
         @media only screen and (max-width: 768px) {
                 body {
-                    background: url('https://preview.redd.it/no-spoilers-jinx-mobile-wallpaper-oled-friendly-v0-1y2gk4mwz43e1.png?width=1080&crop=smart&auto=webp&s=74e2ea53692643ad3356a44e5478509b609559d8') no-repeat center center fixed;
+                    background: url('https://preview.redd.it/no-spoilers-jinx-mobile-wallpaper-oled-friendly-v0-1y2gk4mwz43e1.png?width=1080&crop=smart&auto=webp&s=74e2ea53692643ad3356a44e5478509b609559d8') no-repeat center center scroll;
                     background-size: cover;
                 }
             }
