@@ -101,6 +101,7 @@ def index():
     """
 
     for track in tracks:
+        print("DEBUG TRACK:", track)  # 🔍 DEBUG LINE
         name = track.get('name', 'Unknown')
         track_id = name.lower().strip().replace(' ', '_')
         artist = track.get('artist', 'Unknown')
