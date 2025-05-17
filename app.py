@@ -8,11 +8,14 @@ load_dotenv()
 
 app = Flask(__name__)
 COMMENTS_FILE = 'comments.json'
-GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")  # published CSV URL from your public sheet
+GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
 def fetch_playlist():
     try:
-        response = requests.get(GOOGLE_SHEET_URL)
+        if not GOOGLE_SHEET_URL:
+            return {"error": "GOOGLE_SHEET_URL not set in environment"}
+        response = requests.get(GOOGLE_SHEET_URL, timeout=10)
+        response.raise_for_status()
         lines = response.text.strip().split('\n')
         headers = lines[0].split(',')
         track_data = [dict(zip(headers, line.split(','))) for line in lines[1:]]
@@ -30,7 +33,7 @@ def save_comments(data):
     with open(COMMENTS_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
     playlist = fetch_playlist()
     if not playlist or "tracks" not in playlist:
@@ -163,6 +166,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
