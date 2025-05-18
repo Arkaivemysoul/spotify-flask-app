@@ -105,7 +105,6 @@ def index():
                 min-height: 100vh;
             }
         }
-            }
         </style>
     </head>
     <body>
