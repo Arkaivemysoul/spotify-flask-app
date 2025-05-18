@@ -3,49 +3,57 @@ import requests
 import csv
 import json
 import os
+import gspread
 from dotenv import load_dotenv
+from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
 app = Flask(__name__)
-COMMENTS_FILE = 'comments.json'
-GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
+COMMENTS_SHEET_NAME = os.getenv("COMMENTS_SHEET_NAME", "comments")
+
+# Set up Google Sheets API access
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
 
 def fetch_playlist():
     try:
-        if not GOOGLE_SHEET_URL:
-            return {"error": "GOOGLE_SHEET_URL not set in environment"}
-
-        response = requests.get(GOOGLE_SHEET_URL, timeout=10)
-        response.raise_for_status()
-
-        decoded_content = response.content.decode('utf-8')
-        reader = csv.DictReader(decoded_content.splitlines())
-        return {"tracks": list(reader)}
-
+        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet("tracks")
+        data = sheet.get_all_records()
+        return {"tracks": data}
     except Exception as e:
         return {"error": str(e)}
 
 def load_comments():
-    if os.path.exists(COMMENTS_FILE):
-        with open(COMMENTS_FILE, "r") as f:
-            return json.load(f)
-    return {}
+    try:
+        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet(COMMENTS_SHEET_NAME)
+        rows = sheet.get_all_records()
+        comments = {}
+        for row in rows:
+            track_id = row["track_id"]
+            author = row["author"]
+            text = row["text"]
+            if track_id not in comments:
+                comments[track_id] = {}
+            comments[track_id][author] = text
+        return comments
+    except Exception as e:
+        print("Error loading comments:", e)
+        return {}
 
 def save_comment_to_sheet(track_id, author, text):
     try:
         sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet(COMMENTS_SHEET_NAME)
         headers = sheet.row_values(1)
-
-        # Make sure the headers match the expected columns
         if headers != ['track_id', 'author', 'text']:
             print("Header mismatch or missing, aborting write.")
             return False
-
         sheet.append_row([track_id, author, text])
         return True
     except Exception as e:
-        print("Error saving comment:", e)
+        print("Error saving comment to Google Sheet:", e)
         return False
 
 @app.route("/", methods=["GET"])
@@ -76,8 +84,6 @@ def index():
                 min-height: 100vh;
                 color: #ffffff;
             }
-
-            
             .overlay {
                 background-color: rgba(0, 0, 0, 0.5);
                 min-height: 100vh;
@@ -111,18 +117,18 @@ def index():
                 resize: vertical;
                 min-height: 100px;
             }
-        @media only screen and (max-width: 768px) {
-    body {
-        background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-attachment: scroll;
-        min-height: 100vh;
-        background-color: #000;
-    }
-}
-</style>
+            @media only screen and (max-width: 768px) {
+                body {
+                    background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    background-attachment: scroll;
+                    min-height: 100vh;
+                    background-color: #000;
+                }
+            }
+        </style>
     </head>
     <body>
         <div class='overlay'>
@@ -131,7 +137,6 @@ def index():
     """
 
     for track in tracks:
-        print("DEBUG TRACK:", track)  # 🔍 DEBUG LINE
         name = track.get('name', 'Unknown')
         track_id = name.lower().strip().replace(' ', '_')
         artist = track.get('artist', 'Unknown')
@@ -186,12 +191,11 @@ def save_comment():
     author = data.get("author")
     text = data.get("text")
 
-    comments = load_comments()
-    if track_id not in comments:
-        comments[track_id] = {}
-    comments[track_id][author] = text
-    save_comments(comments)
-    return jsonify({"status": "success"})
+    success = save_comment_to_sheet(track_id, author, text)
+    if success:
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "error"})
 
 @app.route("/load_comments")
 def get_comments():
@@ -199,4 +203,5 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
