@@ -56,13 +56,26 @@ def index():
             body {
                 font-family: 'Quicksand', sans-serif;
                 background-image: url('https://images2.alphacoders.com/138/1386740.png');
+                background-size: cover;
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-attachment: fixed;
-                background-size: cover;
+                background-color: #000000;
+                min-height: 100vh;
+                color: #ffffff;
+            }
+
+            @media only screen and (max-width: 768px) {
+                body {
+                    background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    background-attachment: scroll;
                     background-color: #000000;
                     min-height: 100vh;
-                color: #ffffff;
+                }
+            
             }
             .overlay {
                 background-color: rgba(0, 0, 0, 0.5);
@@ -185,3 +198,4 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
