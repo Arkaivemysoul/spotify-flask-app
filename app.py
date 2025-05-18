@@ -65,18 +65,7 @@ def index():
                 color: #ffffff;
             }
 
-            @media only screen and (max-width: 768px) {
-                body {
-                    background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
-                    background-size: cover;
-                    background-repeat: no-repeat;
-                    background-position: center center;
-                    background-attachment: scroll;
-                    background-color: #000000;
-                    min-height: 100vh;
-                }
             
-            }
             .overlay {
                 background-color: rgba(0, 0, 0, 0.5);
                 min-height: 100vh;
