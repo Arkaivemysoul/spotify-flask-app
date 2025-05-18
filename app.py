@@ -55,7 +55,10 @@ def index():
         <style>
             body {
                 font-family: 'Quicksand', sans-serif;
-                background: url('https://images2.alphacoders.com/138/1386740.png') no-repeat center center fixed;
+                background-image: url('https://images2.alphacoders.com/138/1386740.png');
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-attachment: fixed;
                 background-size: cover;
                     background-color: #000000;
                     min-height: 100vh;
@@ -182,7 +185,3 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
-
-
-
-
