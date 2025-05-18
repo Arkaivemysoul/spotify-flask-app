@@ -95,17 +95,17 @@ def index():
                 min-height: 100px;
             }
         @media only screen and (max-width: 768px) {
-            body {
-                background: url('https://i.imgur.com/E4kkNq6.jpeg') no-repeat center center;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                background-attachment: scroll;
-                background-color: #000000;
-                min-height: 100vh;
-            }
-        }
-        </style>
+    body {
+        background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: scroll;
+        min-height: 100vh;
+        background-color: #000;
+    }
+}
+</style>
     </head>
     <body>
         <div class='overlay'>
@@ -182,6 +182,7 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
 
