@@ -32,9 +32,21 @@ def load_comments():
             return json.load(f)
     return {}
 
-def save_comments(data):
-    with open(COMMENTS_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+def save_comment_to_sheet(track_id, author, text):
+    try:
+        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet(COMMENTS_SHEET_NAME)
+        headers = sheet.row_values(1)
+
+        # Make sure the headers match the expected columns
+        if headers != ['track_id', 'author', 'text']:
+            print("Header mismatch or missing, aborting write.")
+            return False
+
+        sheet.append_row([track_id, author, text])
+        return True
+    except Exception as e:
+        print("Error saving comment:", e)
+        return False
 
 @app.route("/", methods=["GET"])
 def index():
