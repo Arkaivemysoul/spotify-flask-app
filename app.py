@@ -57,11 +57,10 @@ def save_comment_to_db(track_id, author, text):
     conn.close()
     return True
 
-# Routes
 @app.route("/", methods=["GET"])
 def index():
     playlist = fetch_playlist()
-    tracks = playlist.get("tracks", [])
+    tracks = playlist.get("tracks", [])[::-1]  # reverse order
     comments = load_comments()
 
     output = """
@@ -87,6 +86,15 @@ def index():
                 background-color: rgba(0, 0, 0, 0.75);
                 min-height: 100vh;
                 padding: 2rem;
+            }
+            .search-box {
+                width: 60%;
+                margin: 0 auto 2rem auto;
+                padding: 10px;
+                border-radius: 10px;
+                border: none;
+                font-size: 1.1rem;
+                box-shadow: 0 0 10px rgba(255,255,255,0.2);
             }
             .card {
                 background-color: rgba(30, 30, 30, 0.6) !important;
@@ -114,6 +122,17 @@ def index():
                 resize: vertical;
                 min-height: 100px;
             }
+            .fade-in {
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 0.7s ease-out forwards;
+            }
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
             @media only screen and (max-width: 768px) {
                 body {
                     background-image: url('https://i.imgur.com/E4kkNq6.jpeg');
@@ -124,8 +143,11 @@ def index():
     </head>
     <body>
         <div class='overlay'>
-            <div class='container'>
-                <h1 class='mb-5 text-center'>🌌 Our Collective Consciousness</h1>
+            <h1 class='text-center mb-4'>🌌 Our Collective Consciousness</h1>
+            <div class='text-center'>
+                <input type='text' id='searchInput' class='search-box' onkeyup='filterTracks()' placeholder='Search by song or artist...'>
+            </div>
+            <div class='container' id='trackContainer'>
     """
 
     for track in tracks:
@@ -137,7 +159,7 @@ def index():
         vic_comment = comments.get(track_id, {}).get("victoria", "")
 
         output += f"""
-        <div class='card mb-4 p-3 shadow-lg'>
+        <div class='card mb-4 p-3 shadow-lg fade-in track-card' data-name='{name.lower()}' data-artist='{artist.lower()}'>
             <div class='row g-3'>
                 <div class='col-md-5'>
                     <h5 class='card-title'>{name}</h5>
@@ -171,6 +193,17 @@ def index():
             const result = await res.json();
             if (result.status !== 'success') alert('Failed to save comment');
         }
+
+        function filterTracks() {
+            const input = document.getElementById("searchInput").value.toLowerCase();
+            const cards = document.getElementsByClassName("track-card");
+            for (let card of cards) {
+                const name = card.getAttribute("data-name");
+                const artist = card.getAttribute("data-artist");
+                const match = name.includes(input) || artist.includes(input);
+                card.style.display = match ? "" : "none";
+            }
+        }
         </script>
     </body>
     </html>
@@ -196,5 +229,6 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
