@@ -1,48 +1,29 @@
-import sqlite3
+from flask import Flask, jsonify, request
+from db import load_comments, save_comment_to_db
 
-DB_FILE = "comments.db"
+app = Flask(__name__)
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
+@app.route("/")
+def index():
+    return jsonify({"message": "It works!"})
 
-def load_comments():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS comments (track_id TEXT, user TEXT, comment TEXT, PRIMARY KEY(track_id, user))")
-    rows = cursor.execute("SELECT * FROM comments").fetchall()
-    conn.close()
+@app.route("/load_comments")
+def get_comments():
+    return jsonify(load_comments())
 
-    comments = {}
-    for row in rows:
-        track_id = row["track_id"]
-        user = row["user"]
-        text = row["comment"]
-        if track_id not in comments:
-            comments[track_id] = {}
-        comments[track_id][user] = text
-    return comments
+@app.route("/save_comment", methods=["POST"])
+def save_comment():
+    data = request.get_json()
+    track_id = data.get("track_id")
+    author = data.get("author")
+    text = data.get("text")
+    if save_comment_to_db(track_id, author, text):
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"})
 
-def save_comment_to_db(track_id, author, text):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS comments (
-            track_id TEXT,
-            user TEXT,
-            comment TEXT,
-            PRIMARY KEY(track_id, user)
-        )
-    """)
-    cursor.execute("""
-        INSERT INTO comments (track_id, user, comment)
-        VALUES (?, ?, ?)
-        ON CONFLICT(track_id, user) DO UPDATE SET comment=excluded.comment
-    """, (track_id, author, text))
-    conn.commit()
-    conn.close()
-    return True
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 
 
