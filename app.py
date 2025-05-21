@@ -1,60 +1,67 @@
 from flask import Flask, jsonify, request
-import requests
-import csv
-import json
+import pymysql
 import os
-import gspread
 from dotenv import load_dotenv
-from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
 app = Flask(__name__)
-GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
-COMMENTS_SHEET_NAME = os.getenv("COMMENTS_SHEET_NAME", "comments")
 
-# Set up Google Sheets API access
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
+DB_HOST = "localhost"
+DB_USER = "kai_user"
+DB_PASSWORD = "cats_and_cows"
+DB_NAME = "spotify_comments"
+
+# DB connection helper
+def get_db_connection():
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 def fetch_playlist():
     try:
-        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet("tracks")
-        data = sheet.get_all_records()
-        return {"tracks": data}
+        # Placeholder static tracks (simulate what you'd get from Google Sheets)
+        return {
+            "tracks": [
+                {"name": "Track One", "artist": "Artist A"},
+                {"name": "Track Two", "artist": "Artist B"},
+            ]
+        }
     except Exception as e:
         return {"error": str(e)}
 
 def load_comments():
-    try:
-        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet(COMMENTS_SHEET_NAME)
-        rows = sheet.get_all_records()
-        comments = {}
-        for row in rows:
-            track_id = row["track_id"]
-            author = row["author"]
-            text = row["text"]
-            if track_id not in comments:
-                comments[track_id] = {}
-            comments[track_id][author] = text
-        return comments
-    except Exception as e:
-        print("Error loading comments:", e)
-        return {}
+    conn = get_db_connection()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT track_id, user, comment FROM comments")
+        rows = cursor.fetchall()
+    conn.close()
 
-def save_comment_to_sheet(track_id, author, text):
-    try:
-        sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet(COMMENTS_SHEET_NAME)
-        headers = sheet.row_values(1)
-        if headers != ['track_id', 'author', 'text']:
-            print("Header mismatch or missing, aborting write.")
-            return False
-        sheet.append_row([track_id, author, text])
-        return True
-    except Exception as e:
-        print("Error saving comment to Google Sheet:", e)
-        return False
+    comments = {}
+    for row in rows:
+        track_id = row["track_id"]
+        user = row["user"]
+        text = row["comment"]
+        if track_id not in comments:
+            comments[track_id] = {}
+        comments[track_id][user] = text
+    return comments
+
+def save_comment_to_db(track_id, author, text):
+    conn = get_db_connection()
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            INSERT INTO comments (track_id, user, comment)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE comment = VALUES(comment)
+        """, (track_id, author, text))
+        conn.commit()
+    conn.close()
+    return True
 
 @app.route("/", methods=["GET"])
 def index():
@@ -191,7 +198,7 @@ def save_comment():
     author = data.get("author")
     text = data.get("text")
 
-    success = save_comment_to_sheet(track_id, author, text)
+    success = save_comment_to_db(track_id, author, text)
     if success:
         return jsonify({"status": "success"})
     else:
@@ -203,5 +210,6 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
 
