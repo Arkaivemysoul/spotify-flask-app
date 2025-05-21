@@ -1,9 +1,20 @@
 from flask import Flask, jsonify, request
 import sqlite3
+import json
 
 app = Flask(__name__)
 DB_FILE = "comments.db"
 
+# Load playlist from local JSON file
+def fetch_playlist():
+    try:
+        with open("track_list.json", "r") as f:
+            data = json.load(f)
+        return { "tracks": data }
+    except Exception as e:
+        return { "error": str(e) }
+
+# Database helpers
 def get_db_connection():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -46,12 +57,11 @@ def save_comment_to_db(track_id, author, text):
     conn.close()
     return True
 
+# Routes
 @app.route("/", methods=["GET"])
 def index():
-    tracks = [
-        {"name": "Track One", "artist": "Artist A"},
-        {"name": "Track Two", "artist": "Artist B"}
-    ]
+    playlist = fetch_playlist()
+    tracks = playlist.get("tracks", [])
     comments = load_comments()
 
     output = """
@@ -186,4 +196,5 @@ def get_comments():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3000, debug=True)
+
 
