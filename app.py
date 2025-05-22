@@ -54,7 +54,8 @@ def save_comment_to_db(track_id, author, text):
 # Load playlist from JSON
 def load_tracks():
     with open(TRACKS_FILE, "r") as f:
-        return json.load(f)["tracks"][::-1]  # newest first
+        return json.load(f)[::-1]
+  # newest first
 
 # Homepage
 @app.route("/")
