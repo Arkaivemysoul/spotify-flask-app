@@ -71,26 +71,28 @@
         }
 
         /* ✅ Mobile-specific fixes */
-        @media only screen and (max-width: 768px) {
-            body {
-                background-image: url('https://i.imgur.com/bfxLCWH.jpeg');
-                background-size: cover;
-                background-repeat: no-repeat;
-                background-position: center center;
-                background-attachment: scroll;
-                -webkit-font-smoothing: antialiased;
-                text-rendering: optimizeLegibility;
-            }
+@media only screen and (max-width: 768px) {
+    body {
+        background-image: url('https://i.imgur.com/432li58.png');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-attachment: scroll; /* more mobile-friendly */
+        background-color: #000;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
 
-            .card-title {
-                font-size: 1.4rem;
-                text-shadow: none;
-            }
+    .card-title {
+        font-size: 1.4rem;
+        text-shadow: none;
+    }
 
-            label, .card-text, h1, p {
-                text-shadow: none;
-            }
-        }
+    label, .card-text, h1, p {
+        text-shadow: none;
+    }
+}
+
     </style>
 </head>
 <body>
