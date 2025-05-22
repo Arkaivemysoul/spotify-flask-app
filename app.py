@@ -4,7 +4,7 @@ import sqlite3
 
 app = Flask(__name__)
 
-DB_FILE = "comments.db"
+DB_FILE = "/data/comments.db"
 TRACKS_FILE = "track_list.json"
 
 # Database connection
