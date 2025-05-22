@@ -5,91 +5,93 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Prata&family=Lora&display=swap" rel="stylesheet">
     <style>
-    body {
-        font-family: 'Lora', serif;
-        background-image: url('https://images2.alphacoders.com/138/1386740.png'); /* DESKTOP background */
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center center;
-        background-attachment: fixed;
-        background-color: #000000;
-        min-height: 100vh;
-        color: #ffffff;
-    }
-
-    .overlay {
-        background-color: rgba(0, 0, 0, 0.6);
-        min-height: 100vh;
-        padding: 2rem;
-    }
-
-    .search-box {
-        width: 60%;
-        margin: 0 auto 2rem auto;
-        padding: 10px;
-        border-radius: 10px;
-        border: none;
-        font-size: 1.1rem;
-        box-shadow: 0 0 10px rgba(255,255,255,0.2);
-    }
-
-    .card {
-        background-color: rgba(30, 30, 30, 0.6) !important;
-        border: none;
-        color: #ffffff;
-        backdrop-filter: blur(4px);
-    }
-
-    .card-title {
-        font-family: 'Prata', serif;
-        font-size: 1.6rem;
-        font-weight: 700;
-        text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
-    }
-
-    label, .card-text, h1, p {
-        color: #ffffff;
-        text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
-    }
-
-    textarea {
-        width: 100%;
-        padding: 12px;
-        border-radius: 6px;
-        border: none;
-        background-color: #f8f9fa;
-        color: #000;
-        font-size: 1rem;
-        resize: vertical;
-        min-height: 100px;
-        font-family: 'Lora', serif;
-    }
-
-    .fade-in {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeInUp 0.7s ease-out forwards;
-    }
-
-    @keyframes fadeInUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* ✅ MOBILE BACKGROUND OVERRIDE */
-    @media only screen and (max-width: 768px) {
         body {
-            background-image: url('https://i.imgur.com/bfxLCWH.jpeg');
+            font-family: 'Lora', serif;
+            background-image: url('https://images2.alphacoders.com/138/1386740.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
             background-attachment: fixed;
-            background-color: #000;
+            background-color: #000000;
+            min-height: 100vh;
+            color: #ffffff;
         }
-    }
-</style>
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .search-box {
+            width: 60%;
+            margin: 0 auto 2rem auto;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1.1rem;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        .card {
+            background-color: rgba(30, 30, 30, 0.6) !important;
+            border: none;
+            color: #ffffff;
+            backdrop-filter: blur(4px);
+        }
+        .card-title {
+            font-family: 'Prata', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
+        }
+        label, .card-text, h1, p {
+            color: #ffffff;
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: #f8f9fa;
+            color: #000;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Lora', serif;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.7s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ✅ Mobile-specific fixes */
+        @media only screen and (max-width: 768px) {
+            body {
+                background-image: url('https://i.imgur.com/bfxLCWH.jpeg');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-attachment: scroll;
+                -webkit-font-smoothing: antialiased;
+                text-rendering: optimizeLegibility;
+            }
+
+            .card-title {
+                font-size: 1.4rem;
+                text-shadow: none;
+            }
+
+            label, .card-text, h1, p {
+                text-shadow: none;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="overlay">
@@ -147,3 +149,4 @@
     </script>
 </body>
 </html>
+
