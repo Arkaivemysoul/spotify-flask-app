@@ -77,8 +77,10 @@
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center center;
-        background-attachment: scroll; /* more mobile-friendly */
-        background-color: #000;
+        background-attachment: scroll; /* fix for mobile */
+        background-color: #011140; /* fallback base */
+        
+        font-size: 1.1rem;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
     }
@@ -90,6 +92,12 @@
 
     label, .card-text, h1, p {
         text-shadow: none;
+    }
+
+    textarea {
+        font-size: 1rem;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
 }
 
