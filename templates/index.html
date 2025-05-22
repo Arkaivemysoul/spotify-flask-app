@@ -7,7 +7,7 @@
     <style>
     body {
         font-family: 'Lora', serif;
-        background-image: url('https://images2.alphacoders.com/138/1386740.png');
+        background-image: url('https://images2.alphacoders.com/138/1386740.png'); /* DESKTOP background */
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center center;
@@ -16,11 +16,13 @@
         min-height: 100vh;
         color: #ffffff;
     }
+
     .overlay {
         background-color: rgba(0, 0, 0, 0.6);
         min-height: 100vh;
         padding: 2rem;
     }
+
     .search-box {
         width: 60%;
         margin: 0 auto 2rem auto;
@@ -30,22 +32,26 @@
         font-size: 1.1rem;
         box-shadow: 0 0 10px rgba(255,255,255,0.2);
     }
+
     .card {
         background-color: rgba(30, 30, 30, 0.6) !important;
         border: none;
         color: #ffffff;
         backdrop-filter: blur(4px);
     }
+
     .card-title {
         font-family: 'Prata', serif;
         font-size: 1.6rem;
         font-weight: 700;
         text-shadow: 0 0 6px rgba(0, 0, 0, 0.7);
     }
+
     label, .card-text, h1, p {
         color: #ffffff;
         text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
     }
+
     textarea {
         width: 100%;
         padding: 12px;
@@ -58,28 +64,29 @@
         min-height: 100px;
         font-family: 'Lora', serif;
     }
+
     .fade-in {
         opacity: 0;
         transform: translateY(20px);
         animation: fadeInUp 0.7s ease-out forwards;
     }
+
     @keyframes fadeInUp {
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
+
+    /* ✅ MOBILE BACKGROUND OVERRIDE */
     @media only screen and (max-width: 768px) {
         body {
-            background-image: url('https://i.imgur.com/GLzXjSc.jpeg'); /* Your uploaded image */
+            background-image: url('https://i.imgur.com/bfxLCWH.jpeg');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
             background-attachment: fixed;
             background-color: #000;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
         }
     }
 </style>
